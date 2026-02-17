@@ -1,7 +1,74 @@
 #include <iostream>
+#include <ctime>
 #include <conio2.h>
-using namespace std;
 
+using namespace std;
+class Disparo
+{
+private:	
+	int x;
+	int y;
+	clock_t tempo;
+	clock_t paso;
+	int velocidad;
+	int contador;
+	bool activo;
+public:
+	Disparo();
+	void incioDisparo(int dx, int dy);
+	bool actualizar();
+	void dibujar();
+	
+};
+Disparo::Disparo()
+{
+	x = 0;
+	y = 0;
+	velocidad = 5;
+	paso = CLOCKS_PER_SEC / velocidad;
+	tempo = clock();
+	contador = 50;
+	activo = false;
+	
+}
+void Disparo::incioDisparo(int dx, int dy)
+{
+	if(!activo)
+	{
+		x = dx;
+		y = dy-1;
+		activo = true;
+		tempo = clock();
+	}
+}
+bool Disparo::actualizar()
+{   if(!activo)
+    {
+	 return false;
+	}
+	if(tempo + paso < clock()){
+	    gotoxy(x,y);
+		cout<<" ";
+		y--;
+		gotoxy(x,y);
+	    cout<<"I";
+		tempo = clock();
+	}
+	if(y<=2)
+	{
+		gotoxy(x,y);
+		cout<<" ";
+		activo = false;
+	}
+	
+	
+	return activo;
+}
+void Disparo::dibujar()
+{
+	gotoxy(x,y);
+	cout<<"I";
+}
 class Nave
 {
 private:
@@ -13,6 +80,9 @@ public:
 	void moverDerecha();
 	void dibujar();
 	void borrar();
+	void disparar();
+	void actualizarDisparo();
+	Disparo disparo;
 };
 Nave::Nave()
 {
@@ -27,7 +97,7 @@ void Nave::moverIzquierda()
 void Nave::moverDerecha()
 {
 	if(dx<=73){
-	dx += 1;
+		dx += 1;
 	}
 }
 void Nave::dibujar()
@@ -40,7 +110,15 @@ void Nave::borrar()
 	gotoxy(dx,dy);
 	cout<<" ";
 }
-
+void Nave::disparar()
+{
+	disparo.incioDisparo(dx,dy);
+	
+}
+void Nave::actualizarDisparo()
+{
+	disparo.actualizar();
+}
 class Juego
 {
 private:
@@ -110,6 +188,8 @@ void Juego::leerTeclas()
 		case 'd':
 			nave1.moverDerecha();
 			break;
+		case 'b':
+			nave1.disparar();
 		}
 		nave1.dibujar();
 	}
@@ -117,7 +197,8 @@ void Juego::leerTeclas()
 void Juego::gameLoop()
 {
 	
-     leerTeclas();
+	leerTeclas();
+	nave1.actualizarDisparo();
 	dibujarMarco();
 }
 
@@ -134,4 +215,3 @@ int main(int argc, char *argv[]) {
 	}
 	return 0;
 }
-
